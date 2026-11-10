@@ -147,3 +147,4 @@ def switch_account(payload: SwitchAccountRequest, db: Session = Depends(get_db))
 
     token = create_access_token({"sub": user.id, "username": user.username})
     return TokenResponse(access_token=token, token_type="bearer", user=user)
+

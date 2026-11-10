@@ -133,3 +133,4 @@ class MessageReaction(Base):
     __table_args__ = (
         UniqueConstraint("message_id", "user_id", "emoji", name="uq_message_user_reaction"),
     )
+

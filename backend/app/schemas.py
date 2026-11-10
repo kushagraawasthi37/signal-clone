@@ -172,3 +172,4 @@ class AddGroupMembersRequest(BaseModel):
 
 class UpdateDisappearingTimerRequest(BaseModel):
     timer_seconds: int = Field(ge=0, le=604800)  # Max 7 days
+

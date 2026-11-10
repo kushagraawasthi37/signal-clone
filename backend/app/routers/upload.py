@@ -44,3 +44,4 @@ async def upload_file(
     db.refresh(attachment)
 
     return attachment
+

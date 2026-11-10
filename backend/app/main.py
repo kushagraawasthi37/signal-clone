@@ -151,3 +151,4 @@ async def websocket_endpoint(
             await manager.disconnect(websocket, authenticated_user.id, db)
     finally:
         db.close()
+

@@ -13,3 +13,4 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # Fixed mocked OTP for authentication
 MOCK_OTP = "123456"
+

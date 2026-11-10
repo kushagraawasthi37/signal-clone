@@ -410,3 +410,4 @@ def seed_database(db: Session):
     db.commit()
 
     print("--- Database seeding completed successfully! ---")
+

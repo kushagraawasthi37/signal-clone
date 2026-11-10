@@ -62,3 +62,4 @@ def verify_mock_otp(provided_otp: str) -> bool:
     if not provided_otp:
         return False
     return provided_otp.strip() == MOCK_OTP or (len(provided_otp.strip()) == 6 and provided_otp.strip().isdigit())
+

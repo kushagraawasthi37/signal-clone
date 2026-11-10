@@ -300,3 +300,4 @@ export function AuthModal() {
     </div>
   );
 }
+

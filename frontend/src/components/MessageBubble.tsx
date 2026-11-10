@@ -273,3 +273,4 @@ export function MessageBubble({ message, isGroup, onScrollToMessage }: Props) {
     </div>
   );
 }
+

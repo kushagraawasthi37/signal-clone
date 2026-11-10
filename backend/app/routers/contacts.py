@@ -105,3 +105,4 @@ def delete_contact(
     db.delete(contact)
     db.commit()
     return {"success": True, "message": "Contact removed."}
+

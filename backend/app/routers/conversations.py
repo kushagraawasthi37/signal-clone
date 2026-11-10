@@ -12,6 +12,7 @@ from app.schemas import (
 )
 from app.auth import get_current_user
 from app.websocket_manager import manager
+from app.routers.messages import format_message_out
 
 router = APIRouter(prefix="/api/conversations", tags=["Conversations"])
 
@@ -56,7 +57,7 @@ def format_conversation_out(conv: Conversation, current_user_id: str, db: Sessio
         disappearing_timer_seconds=conv.disappearing_timer_seconds,
         updated_at=conv.updated_at,
         members=conv.members,
-        last_message=last_msg,
+        last_message=format_message_out(last_msg) if last_msg else None,
         unread_count=unread_count,
         other_user=other_user
     )
@@ -377,3 +378,4 @@ async def set_disappearing_timer(
     })
 
     return format_conversation_out(conv, current_user.id, db)
+
