@@ -1,3 +1,4 @@
+
 # Python
 __pycache__/
 *.py[cod]
@@ -11,8 +12,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -21,7 +22,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Database & uploads (exclude local test db & large uploads from git if desired, but keep sample schema)
+# Database & uploads
 backend/*.db-journal
 
 # Node & Next.js
@@ -38,3 +39,5 @@ frontend/out/
 .env.test.local
 .env.production.local
 
+# Vercel
+.vercel/
