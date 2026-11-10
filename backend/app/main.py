@@ -23,6 +23,20 @@ async def lifespan(app: FastAPI):
         seed_database(db)
     finally:
         db.close()
+    # Start background heartbeat to keep Render service alive
+    import asyncio, os, httpx
+    async def _keep_alive():
+        while True:
+            try:
+                async with httpx.AsyncClient() as client:
+                    # Use KEEP_ALIVE_URL env var if set, otherwise ping own root endpoint
+                    url = os.getenv("KEEP_ALIVE_URL", "http://127.0.0.1:8000")
+                    await client.get(url)
+            except Exception as e:
+                print(f"[heartbeat] error: {e}")
+            await asyncio.sleep(180)  # 3 minutes
+    # Schedule the heartbeat task (non‑blocking)
+    asyncio.create_task(_keep_alive())
     yield
     # Shutdown
 

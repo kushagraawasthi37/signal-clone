@@ -13,6 +13,7 @@ def run_tests():
     print("1. Creating database tables...")
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
+    
 
     print("2. Seeding database...")
     seed_database(db)
