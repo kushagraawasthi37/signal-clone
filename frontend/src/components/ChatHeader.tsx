@@ -20,6 +20,15 @@ export function ChatHeader() {
   } = useChat();
 
   const [showMenu, setShowMenu] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const toggleMute = () => {
+    const next = !isMuted;
+    setIsMuted(next);
+    setToastMessage(next ? 'Notifications muted for this conversation' : 'Notifications unmuted');
+    setTimeout(() => setToastMessage(null), 2500);
+  };
 
   if (!activeConversation) return null;
 
@@ -193,16 +202,23 @@ export function ChatHeader() {
               <div className="my-1 border-t border-[#383a40]" />
 
               <button
-                onClick={() => alert('Notifications muted for this conversation.')}
+                onClick={toggleMute}
                 className="w-full px-4 py-2.5 text-left hover:bg-[#323338] flex items-center space-x-2 text-gray-300"
               >
                 <BellOff className="w-4 h-4 text-gray-400" />
-                <span>Mute Notifications</span>
+                <span>{isMuted ? 'Unmute Notifications' : 'Mute Notifications'}</span>
               </button>
             </div>
           )}
         </div>
       </div>
+
+      {toastMessage && (
+        <div className="absolute top-18 right-4 bg-[#28292d] border border-[#383a40] text-white px-3.5 py-2 rounded-xl text-xs shadow-2xl flex items-center space-x-2 z-50 animate-in fade-in duration-150">
+          <BellOff className="w-3.5 h-3.5 text-amber-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </header>
   );
 }

@@ -42,6 +42,8 @@ export function StoriesModal() {
   const { activeModal, setActiveModal } = useChat();
   const { currentUser } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [replyText, setReplyText] = useState('');
+  const [replySent, setReplySent] = useState(false);
 
   if (activeModal !== 'stories') return null;
 
@@ -133,19 +135,32 @@ export function StoriesModal() {
           <div className="flex items-center space-x-2">
             <input
               type="text"
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
               placeholder="Send encrypted reply..."
               className="flex-1 px-4 py-2 bg-black/50 border border-white/20 rounded-full text-xs text-white placeholder-gray-300 focus:outline-none focus:border-[#2090ea]"
             />
             <button
               onClick={() => {
-                alert('Reply sent to story!');
-                handleNext();
+                if (!replyText.trim()) return;
+                setReplySent(true);
+                setReplyText('');
+                setTimeout(() => {
+                  setReplySent(false);
+                  handleNext();
+                }, 1200);
               }}
-              className="px-3 py-2 bg-[#2090ea] hover:bg-[#1b7fd1] text-xs font-medium rounded-full text-white"
+              className="px-3.5 py-2 bg-[#2090ea] hover:bg-[#1b7fd1] text-xs font-semibold rounded-full text-white transition-colors"
             >
               Reply
             </button>
           </div>
+
+          {replySent && (
+            <div className="mt-2 text-center text-xs text-emerald-400 font-medium animate-in fade-in">
+              ✓ Encrypted reply sent to {currentStory.author}!
+            </div>
+          )}
         </div>
       </div>
     </div>

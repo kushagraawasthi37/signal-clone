@@ -7,8 +7,16 @@ import { X, Laptop, Tablet, Smartphone, QrCode, Plus, Check } from 'lucide-react
 export function LinkedDevicesModal() {
   const { activeModal, setActiveModal } = useChat();
   const [showScanner, setShowScanner] = useState(false);
+  const [devices, setDevices] = useState([
+    { id: '1', name: 'Signal Desktop - Windows', type: 'laptop', time: 'Active now', current: true },
+    { id: '2', name: 'Signal iPad Pro', type: 'tablet', time: 'Linked 4 days ago • Last sync today', current: false },
+  ]);
 
   if (activeModal !== 'linked_devices') return null;
+
+  const handleUnlink = (id: string) => {
+    setDevices((prev) => prev.filter((d) => d.id !== id));
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -36,34 +44,37 @@ export function LinkedDevicesModal() {
               </p>
 
               <div className="space-y-2 mb-6">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#28292d] border border-[#383a40]">
-                  <div className="flex items-center space-x-3">
-                    <Laptop className="w-5 h-5 text-[#2090ea]" />
-                    <div>
-                      <div className="text-sm font-semibold text-white">Signal Desktop - Windows</div>
-                      <div className="text-[11px] text-gray-400">Current device • Active now</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                    This Device
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#28292d] border border-[#383a40]">
-                  <div className="flex items-center space-x-3">
-                    <Tablet className="w-5 h-5 text-gray-400" />
-                    <div>
-                      <div className="text-sm font-semibold text-white">Signal iPad Pro</div>
-                      <div className="text-[11px] text-gray-400">Linked 4 days ago • Last sync today</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => alert('Device unlinked.')}
-                    className="text-xs text-red-400 hover:underline"
+                {devices.map((device) => (
+                  <div
+                    key={device.id}
+                    className="flex items-center justify-between p-3 rounded-xl bg-[#28292d] border border-[#383a40]"
                   >
-                    Unlink
-                  </button>
-                </div>
+                    <div className="flex items-center space-x-3">
+                      {device.type === 'laptop' ? (
+                        <Laptop className="w-5 h-5 text-[#2090ea]" />
+                      ) : (
+                        <Tablet className="w-5 h-5 text-gray-400" />
+                      )}
+                      <div>
+                        <div className="text-sm font-semibold text-white">{device.name}</div>
+                        <div className="text-[11px] text-gray-400">{device.time}</div>
+                      </div>
+                    </div>
+
+                    {device.current ? (
+                      <span className="text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                        This Device
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleUnlink(device.id)}
+                        className="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-1 rounded hover:bg-red-500/10 transition-colors"
+                      >
+                        Unlink
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
 
               <button
@@ -111,4 +122,3 @@ export function LinkedDevicesModal() {
     </div>
   );
 }
-

@@ -7,7 +7,7 @@ import { api } from '@/lib/api';
 import { User } from '@/lib/types';
 import { getInitials } from '@/lib/utils';
 import {
-  X, Users, UserPlus, UserMinus, ShieldAlert, Shield, Check, Trash2, Edit2
+  X, Users, UserPlus, UserMinus, ShieldAlert, Shield, Check, Trash2, Edit2, Loader2, AlertTriangle
 } from 'lucide-react';
 
 export function GroupInfoModal() {
@@ -18,6 +18,10 @@ export function GroupInfoModal() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [selectedToAdd, setSelectedToAdd] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Deletion confirmation state
+  const [memberToRemove, setMemberToRemove] = useState<User | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     if (activeModal === 'group_info') {
@@ -53,19 +57,23 @@ export function GroupInfoModal() {
     }
   };
 
-  const handleRemoveMember = async (userId: string) => {
-    if (!confirm('Are you sure you want to remove this member?')) return;
+  const confirmRemoveMember = async () => {
+    if (!memberToRemove) return;
+    setIsRemoving(true);
     try {
-      await api.removeGroupMember(activeConversation.id, userId);
+      await api.removeGroupMember(activeConversation.id, memberToRemove.id);
       await refreshConversations();
+      setMemberToRemove(null);
     } catch (err) {
       console.error('Failed to remove member:', err);
+    } finally {
+      setIsRemoving(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-[#1f2024] border border-[#2a2b2f] rounded-2xl shadow-2xl overflow-hidden text-white animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md bg-[#1f2024] border border-[#2a2b2f] rounded-2xl shadow-2xl overflow-hidden text-white animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#2a2b2f]">
           <h3 className="font-semibold text-base text-gray-100 flex items-center space-x-2">
@@ -73,7 +81,7 @@ export function GroupInfoModal() {
             <span>Group Details</span>
           </h3>
           <button
-            onClick={() => { setActiveModal(null); setIsAdding(false); }}
+            onClick={() => { setActiveModal(null); setIsAdding(false); setMemberToRemove(null); }}
             className="p-1 text-gray-400 hover:text-white rounded-full hover:bg-[#282828]"
           >
             <X className="w-5 h-5" />
@@ -150,14 +158,14 @@ export function GroupInfoModal() {
                         {member.role === 'admin' ? 'Admin' : 'Member'}
                       </span>
 
-                      {/* Admin action: remove member */}
+                      {/* Admin action: triggers proper deletion confirmation page */}
                       {isAdmin && member.user.id !== currentUser?.id && (
                         <button
-                          onClick={() => handleRemoveMember(member.user.id)}
+                          onClick={() => setMemberToRemove(member.user)}
                           title="Remove from group"
-                          className="p-1 text-gray-400 hover:text-red-400 rounded-lg hover:bg-[#323338]"
+                          className="p-1.5 text-gray-400 hover:text-red-400 rounded-lg hover:bg-[#323338] transition-colors"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>
@@ -229,8 +237,64 @@ export function GroupInfoModal() {
             </div>
           )}
         </div>
+
+        {/* PROPER MEMBER DELETION CONFIRMATION PAGE OVERLAY */}
+        {memberToRemove && (
+          <div className="absolute inset-0 z-40 bg-[#191a1d]/95 backdrop-blur-md p-6 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-150">
+            {/* Warning Icon Badge */}
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/25 text-red-400 flex items-center justify-center mb-4 shadow-xl shadow-red-500/10">
+              <UserMinus className="w-8 h-8" />
+            </div>
+
+            <h4 className="text-lg font-bold text-white mb-1.5">Remove from Group?</h4>
+            <p className="text-xs text-gray-400 max-w-xs mb-5 leading-relaxed">
+              Are you sure you want to remove <strong className="text-white">{memberToRemove.display_name}</strong> from <strong className="text-white">{activeConversation.name}</strong>?
+              They will no longer be able to send or view new messages in this group.
+            </p>
+
+            {/* Target Member Card Preview */}
+            <div className="w-full max-w-xs flex items-center space-x-3 p-3.5 mb-6 rounded-2xl bg-[#24252a] border border-[#383a40] text-left">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm"
+                style={{ backgroundColor: memberToRemove.avatar_color || '#2090ea' }}
+              >
+                {getInitials(memberToRemove.display_name)}
+              </div>
+              <div className="truncate">
+                <div className="text-sm font-semibold text-white truncate">{memberToRemove.display_name}</div>
+                <div className="text-[11px] text-gray-400 font-mono truncate">{memberToRemove.phone_number} • @{memberToRemove.username}</div>
+              </div>
+            </div>
+
+            {/* Confirmation Buttons */}
+            <div className="flex w-full max-w-xs space-x-3">
+              <button
+                type="button"
+                disabled={isRemoving}
+                onClick={() => setMemberToRemove(null)}
+                className="flex-1 py-2.5 px-4 bg-[#28292d] hover:bg-[#323338] text-gray-300 text-xs font-semibold rounded-xl border border-[#383a40] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isRemoving}
+                onClick={confirmRemoveMember}
+                className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 disabled:bg-red-800 text-white text-xs font-semibold rounded-xl transition-all shadow-lg shadow-red-600/25 flex items-center justify-center space-x-1.5"
+              >
+                {isRemoving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Remove Member</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
