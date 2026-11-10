@@ -83,7 +83,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!token || !currentUser) return;
 
-    const wsUrl = (api.baseUrl.replace('http://', 'ws://').replace('https://', 'wss://')) + `/ws?token=${token}`;
+    const wsBase = api.wsUrl || (typeof window !== 'undefined' ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}:8000` : 'ws://127.0.0.1:8000');
+    const wsUrl = `${wsBase}/ws?token=${token}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
